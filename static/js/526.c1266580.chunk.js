@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkproducts=self.webpackChunkproducts||[]).push([[526],{3526:(n,e,s)=>{s.r(e),s.d(e,{default:()=>t});s(5043);var a=s(5475),r=s(579);const t=()=>(0,r.jsxs)("div",{children:["\u0110\xe2y l\xe0 trang web b\xe1n h\xe0ng in \u1ea5n",(0,r.jsx)(a.N_,{to:"/managerofinan/login",className:"text-blue-500 mr-4",children:"\u0110\u0103ng nh\u1eadp"})]})}}]);
+//# sourceMappingURL=526.c1266580.chunk.js.map
