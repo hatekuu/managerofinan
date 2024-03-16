@@ -1,150 +1,120 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as Realm from 'realm-web';
-import ReactPaginate from 'react-paginate';
-import RenderBillItems from './components/BillItem';
+import Form from '@rjsf/core';
+import validator from '@rjsf/validator-ajv8';
+import './JsonForm.css';
+const schema = {
+  type: 'object',
+  required: ['year', 'month', 'week', 'startDay', 'endDate'],
+  properties: {
+    year: { type: 'number', title: 'Năm', default:2024 },
+    month: { type: 'number', title: 'Tháng',default:3 },
+    week: { type: 'number', title: 'Tuần thứ' },
+    startDay: { type: 'number', title: 'Ngày bắt đầu của tuần',default:1 },
+    endDate: { type: 'number', title: 'Ngày kết thúc của tuần',default:7 }
+  }
+};
 
 const ManagerHome = () => {
+  const [showForm, setShowForm] = useState(true);
+  const [jsonForm, setJsonForm] = useState('');
+
+  const [openUserBillDetails, setOpenUserBillDetails] = useState({});
   const app = new Realm.App({ id: process.env.REACT_APP_KEY });
-  const [bills, setBills] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedBill, setSelectedBill] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredBills, setFilteredBills] = useState([]);
-  const [sortBy, setSortBy] = useState(null);
-  const [sortOrder, setSortOrder] = useState('asc');
-  const PER_PAGE = 20;
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
-  }, [currentPage]); 
-
-  useEffect(() => {
-    if (searchTerm.trim() !== '') {
-      fetchData();
-    } else {
-      setFilteredBills(filterBills(bills, searchTerm));
-    }
-  }, [searchTerm, bills]);
-
-  useEffect(() => {
-    if (sortBy) {
-      handleSort(sortBy);
-    }
-  }, [sortBy, sortOrder]);
+  }, []); // Empty dependency array means it runs once on mount
 
   const fetchData = async () => {
     try {
-      const functionName = "getAllUserBill";
-      setLoading(true);
-      const result = await app.currentUser.callFunction(functionName);
-      setBills(result);
-      setLoading(false);
+      if (!app.currentUser) {
+      
+      } else {
+
+        const result = await app.currentUser.callFunction("BillJsonForm");
+        setJsonForm(result[0]);
+        await app.currentUser.refreshAccessToken();
+      }
     } catch (error) {
-      console.error('Error fetching bills:', error);
-      setLoading(false);
+      navigate('/managerofinan/login');
+      alert(error.message || 'An error occurred');
     }
   };
 
-  const filterBills = (bills, searchTerm) => {
-    return bills.filter(bill =>
-      (bill.user && bill.user.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (bill.totalValue && bill.totalValue.toString().includes(searchTerm))
-    );
+  const toggleUserBillDetails = (userBillIndex) => {
+    setOpenUserBillDetails(prevState => ({
+      ...prevState,
+      [userBillIndex]: !prevState[userBillIndex]
+    }));
+  };
+  const handleSubmit = async ({ formData }) => {
+    // Xử lý dữ liệu ở đây
+ const arg=[formData,app.currentUser.id]
+    await app.currentUser.callFunction("updateoption",...arg);
+    fetchData();
+    setShowForm(false); // Ẩn form sau khi submit
   };
 
-  const handleDetailsClick = (bill) => {
-    setSelectedBill(selectedBill === bill ? null : bill);
-  };
-
-  const handlePageClick = ({ selected }) => {
-    setCurrentPage(selected);
-  };
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleSort = (field) => {
-    let sortedBills = [...filteredBills];
-    sortedBills.sort((a, b) => {
-      if (field === 'totalValue') {
-        return sortOrder === 'asc' ? a.cart.totalValue - b.cart.totalValue : b.cart.totalValue - a.cart.totalValue;
-      } else if (field === 'date') {
-        return sortOrder === 'asc' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
-      }
-      return 0;
-    });
-    setFilteredBills(sortedBills);
-  };
-
-  const handleSortOrderChange = (e) => {
-    setSortOrder(e.target.value);
-  };
-
-  const handleSortByChange = (e) => {
-    setSortBy(e.target.value);
+  const handleFormClick = () => {
+    setShowForm(true); // Hiển thị form khi người dùng nhấn vào chữ "Form"
   };
 
   return (
-    <div className="p-4 bg-gray-100">
-      <h1 className="text-3xl font-bold mb-6">Danh sách đơn hàng</h1>
-      <div className="flex mb-4">
-        <label className="mr-2">Sắp xếp theo:</label>
-        <select
-          value={sortBy}
-          onChange={handleSortByChange}
-          className="mr-2 border rounded px-2 py-1 bg-white shadow-sm"
-        >
-          <option value="">--Chọn trường--</option>
-          <option value="totalValue">Tổng giá trị</option>
-          <option value="date">Thời gian</option>
-        </select>
-        <select
-          value={sortOrder}
-          onChange={handleSortOrderChange}
-          className="border rounded px-2 py-1 bg-white shadow-sm"
-        >
-          <option value="asc">Tăng dần</option>
-          <option value="desc">Giảm dần</option>
-        </select>
-      </div>
-      <input
-        type="text"
-        placeholder="Tìm kiếm"
-        value={searchTerm}
-        onChange={handleSearch}
-        className="border rounded px-4 py-2 mb-4 w-full sm:w-80 bg-white shadow-sm"
-      />
-      {loading ? (
-        <p className="text-center">Đang tải...</p>
-      ) : (
-        <div>
-          <RenderBillItems
-            filteredBills={filteredBills}
-            currentPage={currentPage}
-            handleDetailsClick={handleDetailsClick}
-            selectedBill={selectedBill}
-          />
-        </div>
-      )}
-      {!loading && (
-        <ReactPaginate
-          previousLabel={"← Trước"}
-          nextLabel={"Tiếp →"}
-          pageCount={Math.ceil(filteredBills.length / PER_PAGE)}
-          onPageChange={handlePageClick}
-          containerClassName={"pagination flex justify-center items-center"}
-          activeClassName={"bg-blue-500 text-white"}
-          previousClassName={"px-3 py-2 border border-gray-300 rounded-md mr-2 hover:bg-gray-100"}
-          nextClassName={"px-3 py-2 border border-gray-300 rounded-md ml-2 hover:bg-gray-100"}
-          disabledClassName={"opacity-50"}
-          pageClassName={"px-3 py-2 border border-gray-300 rounded-md mr-2 hover:bg-gray-100"}
-          breakClassName={"px-3 py-2 border border-gray-300 rounded-md mr-2 hover:bg-gray-100"}
-          breakLinkClassName={"px-3 py-2 border border-gray-300 rounded-md mr-2 hover:bg-gray-100"}
-          forcePage={currentPage}
+    
+   
+    <div className="container mx-auto px-4 py-8">
+       <div className="containers">
+      {showForm ? (
+        <Form
+          schema={schema}
+    
+          onSubmit={handleSubmit}
+          validator={validator}
         />
+      ) : (
+        <div className="form-text" onClick={handleFormClick}>Form</div>
       )}
+    </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {jsonForm?.public?.output?.jsonData ?(
+          <>
+          {jsonForm?.public?.output?.jsonData?.bill.map((userBill, userBillIndex) => (
+          <div key={userBillIndex} className="border border-gray-300 p-4">
+            <p className="text-lg font-semibold">Đơn hàng: {userBill?.day}</p>
+            <p>Ngày mua: {userBill?.date?.day}/{userBill?.date?.month}/{userBill?.date?.year}</p>
+            <p>Giờ mua: {userBill?.date?.hour}.{userBill?.date?.period}</p>
+            <p>Người mua: {userBill?.user}</p>
+            <p>ID người mua: {userBill?.userId}</p>
+            {openUserBillDetails[userBillIndex] && (
+              <div className="mt-4">
+                <ul>
+                  {userBill?.cart?.products?.map((product, productIndex) => (
+                    <li key={productIndex} className="border p-4 mb-2">
+                      <p className="font-semibold">Tên sản phẩm: {product.productName}</p>
+                      <p>Loại sản phẩm: {product.productType}</p>
+                      <p>Số lượng: {product.quantity}</p>
+                      <p>Giá bán: {product.sellingPrice}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <button onClick={() => toggleUserBillDetails(userBillIndex)} className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+              {openUserBillDetails[userBillIndex] ? 'Ẩn chi tiết đơn hàng' : 'Hiển thị chi tiết đơn hàng'}
+            </button>
+          </div>
+        ))}
+          </>
+        ):(
+          <div>
+            ko có dữ liệu đơn hàng trong thời giang này
+          </div>
+        )}
+        
+      </div>
     </div>
   );
 };
