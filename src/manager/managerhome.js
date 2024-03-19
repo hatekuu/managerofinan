@@ -27,6 +27,7 @@ const ManagerHome = () => {
   const fetchData = async () => {
     try {
       if (!app.currentUser) {
+        navigate('/managerofinan/login');
       } else {
         const result = await app.currentUser.callFunction("BillJsonForm");
         setJsonForm(result[0]);
