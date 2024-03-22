@@ -16,7 +16,7 @@ const Login = () => {
   const fetchData = async () => {
     try {
   
-      
+      await app?.currentUser?.refreshAccessToken();
    if (app.currentUser?.customData?.type === "Manager") {
       navigate('/managerofinan/manager')
     }
