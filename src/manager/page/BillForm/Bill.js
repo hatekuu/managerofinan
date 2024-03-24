@@ -45,7 +45,7 @@ const Bill = ({ jsonData }) => {
                           <div className="bg-white p-8 rounded-lg">
                             <h2 className="text-2xl font-semibold mb-4">Chi tiết đơn hàng</h2>
                             <ul>
-                              {userBill?.cart?.products?.map((product, productIndex) => (
+                              {userBill?.cart?.map((product, productIndex) => (
                                 <li key={productIndex} className="border p-4 mb-2">
                                   <p className="font-semibold">Tên sản phẩm: {product.productName}</p>
                                   <p>Loại sản phẩm: {product.productType}</p>
