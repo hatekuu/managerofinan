@@ -33,7 +33,7 @@ const BillForm = () => {
   const fetchData = async () => {
     try {
       const functionName = 'UseModule';
-      const arg = ['Cart_Module', app?.currentUser?.id];
+      const arg = ['Bill_Module', app?.currentUser?.id];
 
       await app?.currentUser?.callFunction(functionName, ...arg);
       const findCart = await app?.currentUser?.callFunction("BillJsonForm");
