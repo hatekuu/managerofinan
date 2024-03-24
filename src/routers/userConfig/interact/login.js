@@ -18,7 +18,7 @@ const Login = () => {
   
       await app?.currentUser?.refreshAccessToken();
    if (app.currentUser?.customData?.type === "Manager") {
-      navigate('/managerofinan/manager')
+      navigate('/managerofinan/bill')
     }
     } catch (error) {
      alert(error.error)
@@ -38,7 +38,7 @@ const Login = () => {
     
 
       if (user.customData?.type === "Manager") {
-      navigate('/managerofinan/manager')
+      navigate('/managerofinan/bill')
     }
     } catch (error) {
       const errorMessage = error.error;

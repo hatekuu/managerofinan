@@ -8,12 +8,16 @@ const ResetPassword = lazy(() => import('./routers/userConfig/interact/rspasswor
 const ResetPasswordToken = lazy(() => import('./routers/userConfig/confirm/rstoken'));
 const Managerhome = lazy(() => import('./manager/managerhome'));
 const ProductPage = lazy(() => import('./manager/page/AllProduct/productId'));
+const AllProduct = lazy(() => import( './manager/page/AllProduct/AllProduct'));
+const BillForm = lazy(() => import( './manager/page/BillForm/BillForm'))
 function App() {
   return (
     <Router>
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
+        <Route path="/managerofinan/bill" element={<BillForm />} />
           <Route path="/managerofinan/manager" element={<Managerhome />} />
+          <Route path="/managerofinan/products" element={<AllProduct />} />
           <Route path="/managerofinan" element={<Home />} />
           <Route path="/managerofinan/login" element={<Login />} />
           <Route path="/managerofinan/register" element={<Register />} />
