@@ -3,53 +3,9 @@ import * as Realm from 'realm-web';
 import Form from '@rjsf/core';
 import validator from '@rjsf/validator-ajv8';
 import './Myform.css';
-import { useNavigate } from 'react-router-dom';
 
-const schema={
-  "title": "Thông tin sản phẩm",
-  "type": "object",
-  "required": [
-    "productType",
-    "StartPrice",
-    "EndPrice"
-  ],
-  "properties": {
-    "productType": {
-      "type": "string",
-      "title": "Loại sản phẩm",
-      "enum": [
-        "Phôi thẻ trắng",
-        "Thẻ bảo lãnh",
-        "Thẻ bệnh viện",
-        "Thẻ dán NFC",
-        "Thẻ danh thiếp"
-      ]
-    },
-    "StartPrice": {
-      "title": "Giá từ",
-      "type": "number",
-      "enum": [
-        10,
-        20,
-        30,
-        40,
-        50,
-        60
-      ]
-    },
-    "EndPrice": {
-      "title": "Tới",
-      "type": "number",
-      "enum": [
-        60,
-        70,
-        80,
-        90,
-        100
-      ]
-    }
-  }
-}
+
+
 const AllProduct = () => {
   const app = new Realm.App({ id: process.env.REACT_APP_KEY });
 
@@ -57,24 +13,23 @@ const AllProduct = () => {
   const [user, setUser] = useState();
   const [jsonSchema, setjsonSchema] = useState({});
   const [uiSchema, setuiSchema] = useState({});
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     refreshAccessToken();
   }, []);
 
   const refreshAccessToken = async () => {
-    try {
-      if (!app.currentUser?.accessToken) {
-        navigate('/managerofinan/login');
-      }
-      await app?.currentUser?.refreshAccessToken();
+    
+   try {
+    await app?.currentUser?.refreshAccessToken();
       setUser(app?.currentUser);
-    } catch (error) {
-      if (!app.currentUser?.accessToken) {
-        navigate('/managerofinan/login');
-      }
-    }
+    
+   } catch (error) {
+    console.log(error.error)
+   }
+      
+   
   };
 
   useEffect(() => {
