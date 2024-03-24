@@ -55,8 +55,8 @@ const AllProduct = () => {
 
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState();
-  const [jsonSchema, setjsonSchema] = useState([]);
-  const [uiSchema, setuiSchema] = useState([]);
+  const [jsonSchema, setjsonSchema] = useState({});
+  const [uiSchema, setuiSchema] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -123,7 +123,7 @@ const AllProduct = () => {
                   <Form
                     className="w-full max-w-md p-8 rounded-lg shadow-lg"
                     validator={validator}
-                    schema={schema}
+                    schema={jsonSchema}
                     uiSchema={uiSchema}
                     onSubmit={handleSubmit}
                   />

@@ -9,7 +9,7 @@ const BillForm = () => {
   const [showForm, setShowForm] = useState(false);
   const [jsonForm, setJsonForm] = useState('');
   const [user, setUser] = useState();
-  const [jsonSchema, setjsonSchema] = useState([]);
+  const [jsonSchema, setjsonSchema] = useState({});
 
   const app = new Realm.App({ id: process.env.REACT_APP_KEY });
   const navigate = useNavigate();
